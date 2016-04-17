@@ -66,6 +66,8 @@ public class SHPDump {
 				.describedAs("The input SHP file");
 		final OptionSpec<File> output = parser.accepts("output").withRequiredArg().ofType(File.class).required()
 				.describedAs("The output PNG file");
+		final OptionSpec<Integer> resolution = parser.accepts("resolution").withRequiredArg().ofType(Integer.class)
+				.defaultsTo(2048).describedAs("The output PNG file resolution");
 
 		OptionSet options = null;
 
@@ -115,7 +117,7 @@ public class SHPDump {
 		}
 
 		try (final OutputStream outputStream = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW);) {
-			saveImage(map, outputStream, 1024);
+			saveImage(map, outputStream, resolution.value(options));
 		}
 	}
 

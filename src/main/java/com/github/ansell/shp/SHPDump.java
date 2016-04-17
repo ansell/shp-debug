@@ -21,6 +21,21 @@ import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.geotools.data.FeatureSource;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
+import org.geotools.styling.SLD;
+import org.geotools.styling.Style;
+import org.opengis.feature.Feature;
+import org.opengis.feature.GeometryAttribute;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.geometry.Geometry;
+
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -58,6 +73,22 @@ public class SHPDump {
 		final Path inputPath = input.value(options).toPath();
 		if (!Files.exists(inputPath)) {
 			throw new FileNotFoundException("Could not find input SHP file: " + inputPath.toString());
+		}
+
+		FileDataStore store = FileDataStoreFinder.getDataStore(inputPath.toFile());
+
+		for (String typeName : store.getTypeNames()) {
+			System.out.println("Type: " + typeName);
+			SimpleFeatureSource featureSource = store.getFeatureSource(typeName);
+			SimpleFeatureCollection collection = featureSource.getFeatures();
+			try (SimpleFeatureIterator iterator = collection.features();) {
+				while (iterator.hasNext()) {
+					SimpleFeature feature = iterator.next();
+					GeometryAttribute sourceGeometry = feature.getDefaultGeometryProperty();
+					System.out
+							.println("Feature: " + feature.getIdentifier() + " geometry: " + sourceGeometry.getName());
+				}
+			}
 		}
 
 	}

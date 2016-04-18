@@ -45,6 +45,8 @@ import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
@@ -102,18 +104,27 @@ public class SHPDump {
 		for (String typeName : store.getTypeNames()) {
 			System.out.println("Type: " + typeName);
 			SimpleFeatureSource featureSource = store.getFeatureSource(typeName);
+			SimpleFeatureType schema = featureSource.getSchema();
+			for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
+				System.out.println("Attribute: " + attribute);
+			}
 			Style style = SLD.createSimpleStyle(featureSource.getSchema());
 			Layer layer = new FeatureLayer(featureSource, style);
 			map.addLayer(layer);
 			SimpleFeatureCollection collection = featureSource.getFeatures();
+			int featureCount = 0;
 			try (SimpleFeatureIterator iterator = collection.features();) {
 				while (iterator.hasNext()) {
 					SimpleFeature feature = iterator.next();
-					GeometryAttribute sourceGeometry = feature.getDefaultGeometryProperty();
-					System.out
-							.println("Feature: " + feature.getIdentifier() + " geometry: " + sourceGeometry.getName());
+					// GeometryAttribute sourceGeometry =
+					// feature.getDefaultGeometryProperty();
+					// System.out
+					// .println("Feature: " + feature.getIdentifier() + "
+					// geometry: " + sourceGeometry.getName());
+					featureCount++;
 				}
 			}
+			System.out.println("Feature count: " + featureCount);
 		}
 
 		try (final OutputStream outputStream = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW);) {

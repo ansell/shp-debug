@@ -24,6 +24,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -51,7 +54,9 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
+import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.github.ansell.csv.sum.CSVSummariser;
 import com.github.ansell.csv.util.CSVUtil;
 
 import joptsimple.OptionException;
@@ -128,30 +133,41 @@ public class SHPDump {
 			map.addLayer(layer);
 			SimpleFeatureCollection collection = featureSource.getFeatures();
 			int featureCount = 0;
-			try (SimpleFeatureIterator iterator = collection.features();) {
+			Path nextCSVFile = outputPath.resolve(prefix + ".csv");
+			Path nextSummaryCSVFile = outputPath.resolve(prefix + "-Summary.csv");
+			try (SimpleFeatureIterator iterator = collection.features();
+					Writer bufferedWriter = Files.newBufferedWriter(nextCSVFile, StandardCharsets.UTF_8,
+							StandardOpenOption.CREATE_NEW);
+					SequenceWriter csv = CSVUtil.newCSVWriter(bufferedWriter, csvSchema);) {
+				List<String> nextLine = new ArrayList<>();
 				while (iterator.hasNext()) {
 					SimpleFeature feature = iterator.next();
-					// GeometryAttribute sourceGeometry =
-					// feature.getDefaultGeometryProperty();
-					// System.out
-					// .println("Feature: " + feature.getIdentifier() + "
-					// geometry: " + sourceGeometry.getName());
 					featureCount++;
 					if (featureCount <= 2) {
 						System.out.println("");
 						System.out.println(feature.getIdentifier());
-						for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
-							String featureString = feature.getAttribute(attribute.getName()).toString();
-							System.out.print(attribute.getName() + "=");
-							if (featureString.length() > 100) {
-								featureString = featureString.substring(0, 100) + "...";
-							}
-							System.out.println(featureString);
-						}
 					} else if (featureCount % 100 == 0) {
 						System.out.print(".");
 					}
+					for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
+						String featureString = feature.getAttribute(attribute.getName()).toString();
+						nextLine.add(featureString);
+						if (featureString.length() > 100) {
+							featureString = featureString.substring(0, 100) + "...";
+						}
+						if (featureCount <= 2) {
+							System.out.print(attribute.getName() + "=");
+							System.out.println(featureString);
+						}
+					}
+					csv.write(nextLine);
+					nextLine.clear();
 				}
+			}
+			try (Reader csvReader = Files.newBufferedReader(nextCSVFile, StandardCharsets.UTF_8);
+					Writer summaryOutput = Files.newBufferedWriter(nextSummaryCSVFile, StandardCharsets.UTF_8,
+							StandardOpenOption.CREATE_NEW);) {
+				CSVSummariser.runSummarise(csvReader, summaryOutput, 6);
 			}
 			if (featureCount > 100) {
 				System.out.println("");

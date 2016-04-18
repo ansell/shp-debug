@@ -58,6 +58,10 @@
 			<artifactId>gt-render</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.github.ansell.csv.sum</groupId>
+			<artifactId>csvsum</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>net.sf.jopt-simple</groupId>
 			<artifactId>jopt-simple</artifactId>
 		</dependency>
@@ -92,6 +96,11 @@
 				<groupId>org.geotools</groupId>
 				<artifactId>gt-render</artifactId>
 				<version>${geotools.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.ansell.csv.sum</groupId>
+				<artifactId>csvsum</artifactId>
+				<version>0.1.0-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.jopt-simple</groupId>

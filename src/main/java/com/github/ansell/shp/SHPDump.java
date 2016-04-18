@@ -27,6 +27,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
@@ -48,6 +50,9 @@ import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.github.ansell.csv.util.CSVUtil;
 
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
@@ -107,12 +112,17 @@ public class SHPDump {
 		map.setTitle(inputPath.getFileName().toString());
 
 		for (String typeName : store.getTypeNames()) {
+			System.out.println("");
 			System.out.println("Type: " + typeName);
 			SimpleFeatureSource featureSource = store.getFeatureSource(typeName);
 			SimpleFeatureType schema = featureSource.getSchema();
+			List<String> attributeList = new ArrayList<>();
 			for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
-				System.out.println("Attribute: " + attribute);
+				System.out.println("Attribute: " + attribute.getName().toString());
+				attributeList.add(attribute.getName().toString());
 			}
+			CsvSchema csvSchema = CSVUtil.buildSchema(attributeList);
+
 			Style style = SLD.createSimpleStyle(featureSource.getSchema());
 			Layer layer = new FeatureLayer(featureSource, style);
 			map.addLayer(layer);
@@ -127,8 +137,26 @@ public class SHPDump {
 					// .println("Feature: " + feature.getIdentifier() + "
 					// geometry: " + sourceGeometry.getName());
 					featureCount++;
+					if (featureCount <= 2) {
+						System.out.println("");
+						System.out.println(feature.getIdentifier());
+						for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
+							String featureString = feature.getAttribute(attribute.getName()).toString();
+							System.out.print(attribute.getName() + "=");
+							if (featureString.length() > 100) {
+								featureString = featureString.substring(0, 100) + "...";
+							}
+							System.out.println(featureString);
+						}
+					} else if (featureCount % 100 == 0) {
+						System.out.print(".");
+					}
 				}
 			}
+			if (featureCount > 100) {
+				System.out.println("");
+			}
+			System.out.println("");
 			System.out.println("Feature count: " + featureCount);
 		}
 

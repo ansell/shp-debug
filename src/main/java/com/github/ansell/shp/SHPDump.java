@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
@@ -67,7 +68,9 @@ public class SHPDump {
 		final OptionSpec<File> input = parser.accepts("input").withRequiredArg().ofType(File.class).required()
 				.describedAs("The input SHP file");
 		final OptionSpec<File> output = parser.accepts("output").withRequiredArg().ofType(File.class).required()
-				.describedAs("The output PNG file");
+				.describedAs("The output directory to use for debugging files");
+		final OptionSpec<String> outputPrefix = parser.accepts("prefix").withRequiredArg().ofType(String.class)
+				.defaultsTo("shp-debug").describedAs("The output prefix to use for debugging files");
 		final OptionSpec<Integer> resolution = parser.accepts("resolution").withRequiredArg().ofType(Integer.class)
 				.defaultsTo(2048).describedAs("The output PNG file resolution");
 
@@ -92,9 +95,11 @@ public class SHPDump {
 		}
 
 		final Path outputPath = output.value(options).toPath();
-		if (Files.exists(outputPath)) {
-			throw new FileNotFoundException("Output file already exists, not overwriting it: " + outputPath.toString());
+		if (!Files.exists(outputPath)) {
+			throw new FileNotFoundException("Output directory does not exist: " + outputPath.toString());
 		}
+
+		final String prefix = outputPrefix.value(options);
 
 		FileDataStore store = FileDataStoreFinder.getDataStore(inputPath.toFile());
 
@@ -127,7 +132,8 @@ public class SHPDump {
 			System.out.println("Feature count: " + featureCount);
 		}
 
-		try (final OutputStream outputStream = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW);) {
+		try (final OutputStream outputStream = Files.newOutputStream(outputPath.resolve(prefix + ".png"),
+				StandardOpenOption.CREATE_NEW);) {
 			saveImage(map, outputStream, resolution.value(options));
 		}
 	}

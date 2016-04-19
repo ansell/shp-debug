@@ -126,6 +126,10 @@ public class SHPDump {
 			}
 		}
 
+		if (!filterFields.isEmpty()) {
+			System.out.println("Full set of filter fields: " + filterFields);
+		}
+
 		final String prefix = outputPrefix.value(options);
 
 		FileDataStore store = FileDataStoreFinder.getDataStore(inputPath.toFile());
@@ -157,7 +161,7 @@ public class SHPDump {
 			SimpleFeatureCollection collection = featureSource.getFeatures();
 			int featureCount = 0;
 			Path nextCSVFile = outputPath.resolve(prefix + ".csv");
-			Path nextSummaryCSVFile = outputPath.resolve(prefix + "-" + typeName + "-Summary.csv");
+			Path nextSummaryCSVFile = outputPath.resolve(prefix + "-" + outputSchema.getTypeName() + "-Summary.csv");
 			List<SimpleFeature> outputFeatureList = new CopyOnWriteArrayList<>();
 
 			try (SimpleFeatureIterator iterator = collection.features();
@@ -178,7 +182,7 @@ public class SHPDump {
 					for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
 						String featureString = feature.getAttribute(attribute.getName()).toString();
 						nextLine.add(featureString);
-						if (filterFields.contains(attribute.getName()) && featureString.trim().isEmpty()) {
+						if (filterFields.contains(attribute.getName().toString()) && featureString.trim().isEmpty()) {
 							filterThisFeature = true;
 						}
 						if (featureString.length() > 100) {
@@ -191,9 +195,8 @@ public class SHPDump {
 					}
 					if (!filterThisFeature) {
 						outputFeatureList.add(SHPUtils.changeSchemaName(feature, outputSchema));
+						csv.write(nextLine);
 					}
-
-					csv.write(nextLine);
 					nextLine.clear();
 				}
 			}
@@ -209,7 +212,7 @@ public class SHPDump {
 			System.out.println("Feature count: " + featureCount);
 
 			SimpleFeatureCollection outputCollection = new ListFeatureCollection(outputSchema, outputFeatureList);
-			Path outputShapefilePath = outputPath.resolve(outputSchema.getTypeName() + "-dump");
+			Path outputShapefilePath = outputPath.resolve(prefix + "-" + outputSchema.getTypeName() + "-dump");
 			if (!Files.exists(outputShapefilePath)) {
 				Files.createDirectory(outputShapefilePath);
 			}

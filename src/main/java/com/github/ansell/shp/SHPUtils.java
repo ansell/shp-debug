@@ -29,11 +29,13 @@ import javax.imageio.ImageIO;
 
 import org.geotools.data.shapefile.ShapefileDumper;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.lite.StreamingRenderer;
+import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
 
@@ -70,6 +72,7 @@ public class SHPUtils {
 		int maxSize = 1000 * 1024 * 1024;
 		dumper.setMaxDbfSize(maxSize);
 		dumper.dump(fc);
+		// TODO: Create ZIP file from the contents for easy uploading
 	}
 
 	public static SimpleFeatureTypeImpl cloneSchema(SimpleFeatureType schema) {
@@ -80,6 +83,10 @@ public class SHPUtils {
 		return new SimpleFeatureTypeImpl(outputSchemaName, schema.getAttributeDescriptors(),
 				schema.getGeometryDescriptor(), schema.isAbstract(), schema.getRestrictions(), schema.getSuper(),
 				schema.getDescription());
+	}
+
+	public static SimpleFeature changeSchemaName(SimpleFeature feature, SimpleFeatureType outputSchema) {
+		return new SimpleFeatureImpl(feature.getAttributes(), outputSchema, feature.getIdentifier());
 	}
 
 }

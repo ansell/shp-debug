@@ -138,6 +138,12 @@ public class SHPDump {
 			System.out.println("Type: " + typeName);
 			SimpleFeatureSource featureSource = store.getFeatureSource(typeName);
 			SimpleFeatureType schema = featureSource.getSchema();
+
+			Name outputSchemaName = new NameImpl(schema.getName().getNamespaceURI(),
+					schema.getName().getLocalPart().replace(" ", "").replace("%20", ""));
+			System.out.println("Replacing name on schema: " + schema.getName() + " with " + outputSchemaName);
+			SimpleFeatureType outputSchema = SHPUtils.changeSchemaName(schema, outputSchemaName);
+
 			List<String> attributeList = new ArrayList<>();
 			for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
 				System.out.println("Attribute: " + attribute.getName().toString());
@@ -184,7 +190,7 @@ public class SHPDump {
 						}
 					}
 					if (!filterThisFeature) {
-						outputFeatureList.add(feature);
+						outputFeatureList.add(SHPUtils.changeSchemaName(feature, outputSchema));
 					}
 
 					csv.write(nextLine);
@@ -202,11 +208,8 @@ public class SHPDump {
 			System.out.println("");
 			System.out.println("Feature count: " + featureCount);
 
-			Name outputSchemaName = new NameImpl(schema.getName().getLocalPart().replace(" ", "").replace("%20", ""));
-			SimpleFeatureType outputSchema = SHPUtils.changeSchemaName(schema, outputSchemaName);
-			
 			SimpleFeatureCollection outputCollection = new ListFeatureCollection(outputSchema, outputFeatureList);
-			Path outputShapefilePath = outputPath.resolve(typeName + "-dump");
+			Path outputShapefilePath = outputPath.resolve(outputSchema.getTypeName() + "-dump");
 			if (!Files.exists(outputShapefilePath)) {
 				Files.createDirectory(outputShapefilePath);
 			}

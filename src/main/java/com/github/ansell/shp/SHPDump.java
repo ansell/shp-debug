@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.collection.CollectionFeatureSource;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
@@ -134,9 +135,6 @@ public class SHPDump {
 
 		FileDataStore store = FileDataStoreFinder.getDataStore(inputPath.toFile());
 
-		MapContent map = new MapContent();
-		map.setTitle(inputPath.getFileName().toString());
-
 		for (String typeName : store.getTypeNames()) {
 			System.out.println("");
 			System.out.println("Type: " + typeName);
@@ -155,9 +153,6 @@ public class SHPDump {
 			}
 			CsvSchema csvSchema = CSVUtil.buildSchema(attributeList);
 
-			Style style = SLD.createSimpleStyle(featureSource.getSchema());
-			Layer layer = new FeatureLayer(featureSource, style);
-			map.addLayer(layer);
 			SimpleFeatureCollection collection = featureSource.getFeatures();
 			int featureCount = 0;
 			Path nextCSVFile = outputPath.resolve(prefix + ".csv");
@@ -217,11 +212,16 @@ public class SHPDump {
 				Files.createDirectory(outputShapefilePath);
 			}
 			SHPUtils.writeShapefile(outputCollection, outputShapefilePath);
-		}
 
-		try (final OutputStream outputStream = Files.newOutputStream(
-				outputPath.resolve(prefix + "." + format.value(options)), StandardOpenOption.CREATE_NEW);) {
-			SHPUtils.renderImage(map, outputStream, resolution.value(options), format.value(options));
+			try (final OutputStream outputStream = Files.newOutputStream(
+					outputPath.resolve(prefix + "." + format.value(options)), StandardOpenOption.CREATE_NEW);) {
+				MapContent map = new MapContent();
+				map.setTitle(prefix + "-" + outputSchema.getTypeName());
+				Style style = SLD.createSimpleStyle(featureSource.getSchema());
+				Layer layer = new FeatureLayer(new CollectionFeatureSource(outputCollection), style);
+				map.addLayer(layer);
+				SHPUtils.renderImage(map, outputStream, resolution.value(options), format.value(options));
+			}
 		}
 	}
 }

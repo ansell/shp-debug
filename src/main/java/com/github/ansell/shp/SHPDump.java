@@ -16,13 +16,8 @@
  */
 package com.github.ansell.shp;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
@@ -34,19 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.imageio.ImageIO;
-
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
-import org.geotools.renderer.GTRenderer;
-import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
 import org.opengis.feature.GeometryAttribute;
@@ -180,26 +170,7 @@ public class SHPDump {
 
 		try (final OutputStream outputStream = Files.newOutputStream(
 				outputPath.resolve(prefix + "." + format.value(options)), StandardOpenOption.CREATE_NEW);) {
-			renderImage(map, outputStream, resolution.value(options), format.value(options));
+			SHPUtils.renderImage(map, outputStream, resolution.value(options), format.value(options));
 		}
-	}
-
-	public static void renderImage(final MapContent map, final OutputStream output, final int imageWidth, String format)
-			throws IOException {
-		GTRenderer renderer = new StreamingRenderer();
-		renderer.setMapContent(map);
-
-		ReferencedEnvelope mapBounds = map.getMaxBounds();
-		double heightToWidth = mapBounds.getSpan(1) / mapBounds.getSpan(0);
-		Rectangle imageBounds = new Rectangle(0, 0, imageWidth, (int) Math.round(imageWidth * heightToWidth));
-
-		BufferedImage image = new BufferedImage(imageBounds.width, imageBounds.height, BufferedImage.TYPE_INT_RGB);
-
-		Graphics2D gr = image.createGraphics();
-		gr.setPaint(Color.WHITE);
-		gr.fill(imageBounds);
-
-		renderer.paint(gr, imageBounds, mapBounds);
-		ImageIO.write(image, format, output);
 	}
 }

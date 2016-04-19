@@ -126,7 +126,7 @@ public class SHPDump {
 			SimpleFeatureCollection collection = featureSource.getFeatures();
 			int featureCount = 0;
 			Path nextCSVFile = outputPath.resolve(prefix + ".csv");
-			Path nextSummaryCSVFile = outputPath.resolve(prefix + "-Summary.csv");
+			Path nextSummaryCSVFile = outputPath.resolve(prefix + "-" + typeName + "-Summary.csv");
 			try (SimpleFeatureIterator iterator = collection.features();
 					Writer bufferedWriter = Files.newBufferedWriter(nextCSVFile, StandardCharsets.UTF_8,
 							StandardOpenOption.CREATE_NEW);

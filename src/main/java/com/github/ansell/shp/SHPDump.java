@@ -40,6 +40,7 @@ import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
@@ -52,6 +53,7 @@ import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.util.ProgressListener;
@@ -200,8 +202,9 @@ public class SHPDump {
 			System.out.println("");
 			System.out.println("Feature count: " + featureCount);
 
-			SimpleFeatureTypeImpl outputSchema = SHPUtils.cloneSchema(schema);
-
+			Name outputSchemaName = new NameImpl(schema.getName().getLocalPart().replace(" ", "").replace("%20", ""));
+			SimpleFeatureType outputSchema = SHPUtils.changeSchemaName(schema, outputSchemaName);
+			
 			SimpleFeatureCollection outputCollection = new ListFeatureCollection(outputSchema, outputFeatureList);
 			Path outputShapefilePath = outputPath.resolve(typeName + "-dump");
 			if (!Files.exists(outputShapefilePath)) {

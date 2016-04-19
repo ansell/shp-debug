@@ -35,6 +35,7 @@ import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.Name;
 
 /**
  * Utilities for working with SHP files
@@ -72,9 +73,13 @@ public class SHPUtils {
 	}
 
 	public static SimpleFeatureTypeImpl cloneSchema(SimpleFeatureType schema) {
-		return new SimpleFeatureTypeImpl(schema.getName(),
-				schema.getAttributeDescriptors(), schema.getGeometryDescriptor(), schema.isAbstract(),
-				schema.getRestrictions(), schema.getSuper(), schema.getDescription());
+		return changeSchemaName(schema, schema.getName());
+	}
+
+	public static SimpleFeatureTypeImpl changeSchemaName(SimpleFeatureType schema, Name outputSchemaName) {
+		return new SimpleFeatureTypeImpl(outputSchemaName, schema.getAttributeDescriptors(),
+				schema.getGeometryDescriptor(), schema.isAbstract(), schema.getRestrictions(), schema.getSuper(),
+				schema.getDescription());
 	}
 
 }

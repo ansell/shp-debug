@@ -40,6 +40,7 @@ import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
@@ -199,8 +200,14 @@ public class SHPDump {
 			System.out.println("");
 			System.out.println("Feature count: " + featureCount);
 
-			SimpleFeatureCollection outputCollection = new ListFeatureCollection(schema, outputFeatureList);
-			SHPUtils.writeShapefile(outputCollection, outputPath);
+			SimpleFeatureTypeImpl outputSchema = SHPUtils.cloneSchema(schema);
+
+			SimpleFeatureCollection outputCollection = new ListFeatureCollection(outputSchema, outputFeatureList);
+			Path outputShapefilePath = outputPath.resolve(typeName + "-dump");
+			if (!Files.exists(outputShapefilePath)) {
+				Files.createDirectory(outputShapefilePath);
+			}
+			SHPUtils.writeShapefile(outputCollection, outputShapefilePath);
 		}
 
 		try (final OutputStream outputStream = Files.newOutputStream(

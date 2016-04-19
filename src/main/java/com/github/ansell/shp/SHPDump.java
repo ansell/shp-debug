@@ -18,6 +18,7 @@ package com.github.ansell.shp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
@@ -26,23 +27,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
+import org.opengis.feature.FeatureVisitor;
 import org.opengis.feature.GeometryAttribute;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.util.ProgressListener;
 
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -75,6 +86,9 @@ public class SHPDump {
 				.defaultsTo(2048).describedAs("The output image file resolution");
 		final OptionSpec<String> format = parser.accepts("format").withRequiredArg().ofType(String.class)
 				.defaultsTo("png").describedAs("The output image format");
+		final OptionSpec<String> removeIfEmpty = parser.accepts("remove-if-empty").withRequiredArg()
+				.ofType(String.class).describedAs(
+						"The name of an attribute to remove if its value is empty before outputting the resulting shapefile. Use multiple times to specify multiple fields to check");
 
 		OptionSet options = null;
 
@@ -99,6 +113,14 @@ public class SHPDump {
 		final Path outputPath = output.value(options).toPath();
 		if (!Files.exists(outputPath)) {
 			throw new FileNotFoundException("Output directory does not exist: " + outputPath.toString());
+		}
+
+		final Set<String> filterFields = ConcurrentHashMap.newKeySet();
+		if (options.has(removeIfEmpty)) {
+			for (String nextFilterField : removeIfEmpty.values(options)) {
+				System.out.println("Will filter field if empty value found: " + nextFilterField);
+				filterFields.add(nextFilterField);
+			}
 		}
 
 		final String prefix = outputPrefix.value(options);
@@ -127,6 +149,8 @@ public class SHPDump {
 			int featureCount = 0;
 			Path nextCSVFile = outputPath.resolve(prefix + ".csv");
 			Path nextSummaryCSVFile = outputPath.resolve(prefix + "-" + typeName + "-Summary.csv");
+			List<SimpleFeature> outputFeatureList = new CopyOnWriteArrayList<>();
+
 			try (SimpleFeatureIterator iterator = collection.features();
 					Writer bufferedWriter = Files.newBufferedWriter(nextCSVFile, StandardCharsets.UTF_8,
 							StandardOpenOption.CREATE_NEW);
@@ -141,9 +165,13 @@ public class SHPDump {
 					} else if (featureCount % 100 == 0) {
 						System.out.print(".");
 					}
+					boolean filterThisFeature = false;
 					for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
 						String featureString = feature.getAttribute(attribute.getName()).toString();
 						nextLine.add(featureString);
+						if (filterFields.contains(attribute.getName()) && featureString.trim().isEmpty()) {
+							filterThisFeature = true;
+						}
 						if (featureString.length() > 100) {
 							featureString = featureString.substring(0, 100) + "...";
 						}
@@ -152,6 +180,10 @@ public class SHPDump {
 							System.out.println(featureString);
 						}
 					}
+					if (!filterThisFeature) {
+						outputFeatureList.add(feature);
+					}
+
 					csv.write(nextLine);
 					nextLine.clear();
 				}
@@ -166,6 +198,9 @@ public class SHPDump {
 			}
 			System.out.println("");
 			System.out.println("Feature count: " + featureCount);
+
+			SimpleFeatureCollection outputCollection = new ListFeatureCollection(schema, outputFeatureList);
+			SHPUtils.writeShapefile(outputCollection, outputPath);
 		}
 
 		try (final OutputStream outputStream = Files.newOutputStream(

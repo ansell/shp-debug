@@ -22,9 +22,13 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
+import org.geotools.data.shapefile.ShapefileDumper;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContent;
 import org.geotools.renderer.GTRenderer;
@@ -41,19 +45,28 @@ public class SHPUtils {
 			throws IOException {
 		GTRenderer renderer = new StreamingRenderer();
 		renderer.setMapContent(map);
-	
+
 		ReferencedEnvelope mapBounds = map.getMaxBounds();
 		double heightToWidth = mapBounds.getSpan(1) / mapBounds.getSpan(0);
 		Rectangle imageBounds = new Rectangle(0, 0, imageWidth, (int) Math.round(imageWidth * heightToWidth));
-	
+
 		BufferedImage image = new BufferedImage(imageBounds.width, imageBounds.height, BufferedImage.TYPE_INT_RGB);
-	
+
 		Graphics2D gr = image.createGraphics();
 		gr.setPaint(Color.WHITE);
 		gr.fill(imageBounds);
-	
+
 		renderer.paint(gr, imageBounds, mapBounds);
 		ImageIO.write(image, format, output);
+	}
+
+	public static void writeShapefile(SimpleFeatureCollection fc, Path outputDir) throws IOException {
+		ShapefileDumper dumper = new ShapefileDumper(outputDir.toFile());
+		dumper.setCharset(StandardCharsets.UTF_8);
+		// split when shp or dbf reaches 1000MB
+		int maxSize = 1000 * 1024 * 1024;
+		dumper.setMaxDbfSize(maxSize);
+		dumper.dump(fc);
 	}
 
 }

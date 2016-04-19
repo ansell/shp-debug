@@ -82,7 +82,9 @@ public class SHPDump {
 		final OptionSpec<String> outputPrefix = parser.accepts("prefix").withRequiredArg().ofType(String.class)
 				.defaultsTo("shp-debug").describedAs("The output prefix to use for debugging files");
 		final OptionSpec<Integer> resolution = parser.accepts("resolution").withRequiredArg().ofType(Integer.class)
-				.defaultsTo(2048).describedAs("The output PNG file resolution");
+				.defaultsTo(2048).describedAs("The output image file resolution");
+		final OptionSpec<String> format = parser.accepts("format").withRequiredArg().ofType(String.class)
+				.defaultsTo("png").describedAs("The output image format");
 
 		OptionSet options = null;
 
@@ -176,13 +178,13 @@ public class SHPDump {
 			System.out.println("Feature count: " + featureCount);
 		}
 
-		try (final OutputStream outputStream = Files.newOutputStream(outputPath.resolve(prefix + ".png"),
-				StandardOpenOption.CREATE_NEW);) {
-			saveImage(map, outputStream, resolution.value(options));
+		try (final OutputStream outputStream = Files.newOutputStream(
+				outputPath.resolve(prefix + "." + format.value(options)), StandardOpenOption.CREATE_NEW);) {
+			renderImage(map, outputStream, resolution.value(options), format.value(options));
 		}
 	}
 
-	public static void saveImage(final MapContent map, final OutputStream output, final int imageWidth)
+	public static void renderImage(final MapContent map, final OutputStream output, final int imageWidth, String format)
 			throws IOException {
 		GTRenderer renderer = new StreamingRenderer();
 		renderer.setMapContent(map);
@@ -198,6 +200,6 @@ public class SHPDump {
 		gr.fill(imageBounds);
 
 		renderer.paint(gr, imageBounds, mapBounds);
-		ImageIO.write(image, "png", output);
+		ImageIO.write(image, format, output);
 	}
 }

@@ -72,7 +72,6 @@ public class SHPUtils {
 		int maxSize = 1000 * 1024 * 1024;
 		dumper.setMaxDbfSize(maxSize);
 		dumper.dump(fc);
-		// TODO: Create ZIP file from the contents for easy uploading
 	}
 
 	public static SimpleFeatureTypeImpl cloneSchema(SimpleFeatureType schema) {

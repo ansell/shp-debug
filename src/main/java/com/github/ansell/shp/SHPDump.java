@@ -18,7 +18,6 @@ package com.github.ansell.shp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
@@ -27,12 +26,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
@@ -42,23 +41,16 @@ import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.NameImpl;
-import org.geotools.feature.simple.SimpleFeatureTypeImpl;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.FeatureLayer;
 import org.geotools.map.Layer;
 import org.geotools.map.MapContent;
 import org.geotools.styling.SLD;
 import org.geotools.styling.Style;
-import org.opengis.feature.FeatureVisitor;
-import org.opengis.feature.GeometryAttribute;
+import org.jooq.lambda.Unchecked;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.util.ProgressListener;
-
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.github.ansell.csv.sum.CSVSummariser;
@@ -70,7 +62,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
- * Tool for dumping/examining the contents of SHP files.
+ * Tool for examining/filtering/dumping the contents of SHP files.
  * 
  * @author Peter Ansell p_ansell@yahoo.com
  */
@@ -212,6 +204,17 @@ public class SHPDump {
 				Files.createDirectory(outputShapefilePath);
 			}
 			SHPUtils.writeShapefile(outputCollection, outputShapefilePath);
+
+			// Create ZIP file from the contents to keep the subfiles together
+			Path outputShapefileZipPath = outputPath.resolve(prefix + "-" + outputSchema.getTypeName() + "-dump.zip");
+			try (final OutputStream out = Files.newOutputStream(outputShapefileZipPath, StandardOpenOption.CREATE_NEW);
+					final ZipOutputStream zip = new ZipOutputStream(out, StandardCharsets.UTF_8);) {
+				Files.list(outputShapefilePath).forEachOrdered(Unchecked.consumer(e -> {
+					zip.putNextEntry(new ZipEntry(e.getFileName().toString()));
+					Files.copy(e, zip);
+					zip.closeEntry();
+				}));
+			}
 
 			try (final OutputStream outputStream = Files.newOutputStream(
 					outputPath.resolve(prefix + "." + format.value(options)), StandardOpenOption.CREATE_NEW);) {

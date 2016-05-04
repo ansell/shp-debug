@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.ansell.shp</groupId>
 	<artifactId>shp-debug</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>SHP debug</name>
 	<description>Debugger for SHP files</description>
 	<packaging>jar</packaging>

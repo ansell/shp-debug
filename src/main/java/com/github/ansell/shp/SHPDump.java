@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -167,7 +168,8 @@ public class SHPDump {
 					}
 					boolean filterThisFeature = false;
 					for (AttributeDescriptor attribute : schema.getAttributeDescriptors()) {
-						String featureString = feature.getAttribute(attribute.getName()).toString();
+						String featureString = Optional.ofNullable(feature.getAttribute(attribute.getName())).orElse("")
+								.toString();
 						nextLine.add(featureString);
 						if (filterFields.contains(attribute.getName().toString()) && featureString.trim().isEmpty()) {
 							filterThisFeature = true;

@@ -26,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -128,7 +130,7 @@ public class SHPDump {
 
 		FileDataStore store = FileDataStoreFinder.getDataStore(inputPath.toFile());
 
-		for (String typeName : store.getTypeNames()) {
+		for (String typeName : new LinkedHashSet<>(Arrays.asList(store.getTypeNames()))) {
 			System.out.println("");
 			System.out.println("Type: " + typeName);
 			SimpleFeatureSource featureSource = store.getFeatureSource(typeName);

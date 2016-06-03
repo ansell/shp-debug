@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -37,7 +38,9 @@ import org.geotools.renderer.GTRenderer;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.identity.FeatureId;
 
 /**
  * Utilities for working with SHP files
@@ -79,13 +82,25 @@ public class SHPUtils {
 	}
 
 	public static SimpleFeatureTypeImpl changeSchemaName(SimpleFeatureType schema, Name outputSchemaName) {
-		return new SimpleFeatureTypeImpl(outputSchemaName, schema.getAttributeDescriptors(),
-				schema.getGeometryDescriptor(), schema.isAbstract(), schema.getRestrictions(), schema.getSuper(),
-				schema.getDescription());
+		List<AttributeDescriptor> attributeDescriptors = schema.getAttributeDescriptors();
+		return newFeatureType(schema, outputSchemaName, attributeDescriptors);
 	}
 
-	public static SimpleFeature changeSchemaName(SimpleFeature feature, SimpleFeatureType outputSchema) {
-		return new SimpleFeatureImpl(feature.getAttributes(), outputSchema, feature.getIdentifier());
+	public static SimpleFeatureTypeImpl newFeatureType(SimpleFeatureType schema, Name outputSchemaName,
+			List<AttributeDescriptor> attributeDescriptors) {
+		return new SimpleFeatureTypeImpl(outputSchemaName, attributeDescriptors, schema.getGeometryDescriptor(),
+				schema.isAbstract(), schema.getRestrictions(), schema.getSuper(), schema.getDescription());
+	}
+
+	public static SimpleFeatureImpl changeSchemaName(SimpleFeature feature, SimpleFeatureType outputSchema) {
+		List<Object> attributes = feature.getAttributes();
+		FeatureId identifier = feature.getIdentifier();
+		return newFeature(outputSchema, attributes, identifier);
+	}
+
+	public static SimpleFeatureImpl newFeature(SimpleFeatureType outputSchema, List<Object> attributes,
+			FeatureId identifier) {
+		return new SimpleFeatureImpl(attributes, outputSchema, identifier);
 	}
 
 }

@@ -225,15 +225,20 @@ public class SHPMerge {
 			System.out.println("");
 			System.out.println("Feature count: " + featureCount);
 
+			List<String> mergedOutputHeaders;
 			try (final BufferedReader readerMapping = Files.newBufferedReader(mappingPath);
 					final BufferedReader readerInput = Files.newBufferedReader(nextCSVFile);
 					final BufferedReader readerOtherInput = Files.newBufferedReader(otherInputPath);
 					final BufferedWriter writer = Files.newBufferedWriter(nextMergedCSVFile);) {
 				List<ValueMapping> map = ValueMapping.extractMappings(readerMapping);
-				CSVUtil.runJoiner(readerInput, readerOtherInput, map, writer, inputPrefix.value(options),
+				mergedOutputHeaders = CSVUtil.runJoiner(readerInput, readerOtherInput, map, writer, inputPrefix.value(options),
 						otherPrefix.value(options), true);
 			}
 
+			List<AttributeDescriptor> mergedAttributes = SHPUtils.getAttributeList(mergedOutputHeaders);
+			// TODO: Output the merged feature list
+			List<SimpleFeature> mergedFeatureList = SHPUtils.buildFeatureCollectionFromCSV(SHPUtils.newFeatureType(outputSchema, outputSchemaName, mergedAttributes), nextMergedCSVFile);
+			
 			SimpleFeatureCollection outputCollection = new ListFeatureCollection(outputSchema, outputFeatureList);
 			Path outputShapefilePath = outputPath.resolve(prefix + "-" + outputSchema.getTypeName() + "-dump");
 			if (!Files.exists(outputShapefilePath)) {

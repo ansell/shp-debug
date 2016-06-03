@@ -20,16 +20,20 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
 import org.geotools.data.shapefile.ShapefileDumper;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.feature.AttributeTypeBuilder;
 import org.geotools.feature.simple.SimpleFeatureImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -41,6 +45,8 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.identity.FeatureId;
+
+import com.github.ansell.csv.util.CSVUtil;
 
 /**
  * Utilities for working with SHP files
@@ -98,9 +104,29 @@ public class SHPUtils {
 		return newFeature(outputSchema, attributes, identifier);
 	}
 
-	public static SimpleFeatureImpl newFeature(SimpleFeatureType outputSchema, List<Object> attributes,
+	public static SimpleFeatureImpl newFeature(SimpleFeatureType featureType, List<Object> attributes,
 			FeatureId identifier) {
-		return new SimpleFeatureImpl(attributes, outputSchema, identifier);
+		return new SimpleFeatureImpl(attributes, featureType, identifier);
+	}
+
+	public static List<AttributeDescriptor> getAttributeList(List<String> mergedOutputHeaders) {
+		List<AttributeDescriptor> result = new ArrayList<>(mergedOutputHeaders.size());
+		for(String nextOutputHeader : mergedOutputHeaders) {
+			AttributeTypeBuilder build = new AttributeTypeBuilder();
+			build.setNillable(true);
+			build.setBinding(String.class);
+			result.add(build.buildDescriptor(nextOutputHeader));
+		}
+		return result;
+	}
+
+	public static List<SimpleFeature> buildFeatureCollectionFromCSV(SimpleFeatureTypeImpl newFeatureType,
+			Path nextMergedCSVFile) throws IOException {
+		List<SimpleFeature> result = new ArrayList<>();
+		try(BufferedReader inputStreamReader = Files.newBufferedReader(nextMergedCSVFile)) {
+			CSVUtil.streamCSV(inputStreamReader, h -> {}, (h, l) -> l, l -> result.add(newFeature(newFeatureType)));
+		}
+		return result;
 	}
 
 }

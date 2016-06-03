@@ -192,7 +192,7 @@ public class SHPDump {
 			try (Reader csvReader = Files.newBufferedReader(nextCSVFile, StandardCharsets.UTF_8);
 					Writer summaryOutput = Files.newBufferedWriter(nextSummaryCSVFile, StandardCharsets.UTF_8,
 							StandardOpenOption.CREATE_NEW);) {
-				CSVSummariser.runSummarise(csvReader, summaryOutput, 6);
+				CSVSummariser.runSummarise(csvReader, summaryOutput, 50);
 			}
 			if (featureCount > 100) {
 				System.out.println("");

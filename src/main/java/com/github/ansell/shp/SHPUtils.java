@@ -111,7 +111,7 @@ public class SHPUtils {
 
 	public static List<AttributeDescriptor> getAttributeList(List<String> mergedOutputHeaders) {
 		List<AttributeDescriptor> result = new ArrayList<>(mergedOutputHeaders.size());
-		for(String nextOutputHeader : mergedOutputHeaders) {
+		for (String nextOutputHeader : mergedOutputHeaders) {
 			AttributeTypeBuilder build = new AttributeTypeBuilder();
 			build.setNillable(true);
 			build.setBinding(String.class);
@@ -123,8 +123,9 @@ public class SHPUtils {
 	public static List<SimpleFeature> buildFeatureCollectionFromCSV(SimpleFeatureTypeImpl newFeatureType,
 			Path nextMergedCSVFile) throws IOException {
 		List<SimpleFeature> result = new ArrayList<>();
-		try(BufferedReader inputStreamReader = Files.newBufferedReader(nextMergedCSVFile)) {
-			CSVUtil.streamCSV(inputStreamReader, h -> {}, (h, l) -> l, l -> result.add(newFeature(newFeatureType)));
+		try (BufferedReader inputStreamReader = Files.newBufferedReader(nextMergedCSVFile)) {
+			CSVUtil.streamCSV(inputStreamReader, h -> {
+			}, (h, l) -> l, l -> result.add(newFeature(newFeatureType)));
 		}
 		return result;
 	}

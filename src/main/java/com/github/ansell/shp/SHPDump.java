@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.output.NullWriter;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.collection.CollectionFeatureSource;
@@ -81,6 +82,8 @@ public class SHPDump {
 				.describedAs("The output directory to use for debugging files");
 		final OptionSpec<String> outputPrefix = parser.accepts("prefix").withRequiredArg().ofType(String.class)
 				.defaultsTo("shp-debug").describedAs("The output prefix to use for debugging files");
+		final OptionSpec<File> outputMappingTemplate = parser.accepts("output-mapping").withRequiredArg()
+				.ofType(File.class).describedAs("The output mapping template file if it needs to be generated.");
 		final OptionSpec<Integer> resolution = parser.accepts("resolution").withRequiredArg().ofType(Integer.class)
 				.defaultsTo(2048).describedAs("The output image file resolution");
 		final OptionSpec<String> format = parser.accepts("format").withRequiredArg().ofType(String.class)
@@ -112,6 +115,13 @@ public class SHPDump {
 		final Path outputPath = output.value(options).toPath();
 		if (!Files.exists(outputPath)) {
 			throw new FileNotFoundException("Output directory does not exist: " + outputPath.toString());
+		}
+
+		final Path outputMappingPath = options.has(outputMappingTemplate)
+				? outputMappingTemplate.value(options).toPath() : null;
+		if (options.has(outputMappingTemplate) && Files.exists(outputMappingPath)) {
+			throw new FileNotFoundException(
+					"Output mapping template file already exists: " + outputMappingPath.toString());
 		}
 
 		final Set<String> filterFields = ConcurrentHashMap.newKeySet();
@@ -193,8 +203,10 @@ public class SHPDump {
 			}
 			try (Reader csvReader = Files.newBufferedReader(nextCSVFile, StandardCharsets.UTF_8);
 					Writer summaryOutput = Files.newBufferedWriter(nextSummaryCSVFile, StandardCharsets.UTF_8,
-							StandardOpenOption.CREATE_NEW);) {
-				CSVSummariser.runSummarise(csvReader, summaryOutput, 50);
+							StandardOpenOption.CREATE_NEW);
+					final Writer mappingWriter = options.has(outputMappingTemplate)
+							? Files.newBufferedWriter(outputMappingPath) : NullWriter.NULL_WRITER) {
+				CSVSummariser.runSummarise(csvReader, summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT, false);
 			}
 			if (featureCount > 100) {
 				System.out.println("");

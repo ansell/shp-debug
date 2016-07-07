@@ -140,6 +140,11 @@ public class SHPDump {
 
 		FileDataStore store = FileDataStoreFinder.getDataStore(inputPath.toFile());
 
+		if (store == null) {
+			throw new RuntimeException(
+					"Could not read the given input as an ESRI Shapefile: " + inputPath.toAbsolutePath().toString());
+		}
+
 		for (String typeName : new LinkedHashSet<>(Arrays.asList(store.getTypeNames()))) {
 			System.out.println("");
 			System.out.println("Type: " + typeName);
@@ -206,7 +211,8 @@ public class SHPDump {
 							StandardOpenOption.CREATE_NEW);
 					final Writer mappingWriter = options.has(outputMappingTemplate)
 							? Files.newBufferedWriter(outputMappingPath) : NullWriter.NULL_WRITER) {
-				CSVSummariser.runSummarise(csvReader, summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT, false);
+				CSVSummariser.runSummarise(csvReader, summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT,
+						false);
 			}
 			if (featureCount > 100) {
 				System.out.println("");

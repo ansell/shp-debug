@@ -19,7 +19,8 @@ sudo -u postgres dropdb --if-exists ${PGDB}
 sudo -u postgres dropdb --if-exists ${PGDB_TEMPLATE}
 sudo -u postgres dropuser --if-exists ${PGUSER}
 
-sudo -u postgres createuser --pwprompt --superuser ${PGUSER}
+sudo -u postgres psql -c "CREATE USER ${PGUSER} WITH PASSWORD '${PGPASSWORD}'"
+sudo -u postgres psql -c "ALTER USER ${PGUSER} WITH SUPERUSER"
 sudo -u postgres createdb -O ${PGUSER} ${PGDB_TEMPLATE}
 
 psql "${POSTGRES_PSQL_TEMPLATE_CONNECTION}" -c "CREATE EXTENSION postgis;"

@@ -73,6 +73,10 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -136,6 +140,12 @@
 				<version>${slf4j.version}</version>
 				<scope>runtime</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>9.4.1208</version>
+				<scope>runtime</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -157,6 +167,11 @@
 						<program>
 							<mainClass>com.github.ansell.shp.SHPDump</mainClass>
 							<id>shpdump</id>
+							<jvmSettings>
+								<initialMemorySize>20m</initialMemorySize>
+								<maxMemorySize>4g</maxMemorySize>
+								<maxStackSize>256m</maxStackSize>
+							</jvmSettings>
 						</program>
 					</programs>
 				</configuration>

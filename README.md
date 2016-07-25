@@ -3,6 +3,11 @@ Debugging SHP files
 
 # Changelog
 
+## 2016-07-25
+* Release 0.0.4
+* Add script to setup a test instance of postgis
+* Enlarge memory allowances for shpdump
+
 ## 2016-06-24
 * Release 0.0.3
 * Make SHP-debug compatible with new CSVSummariser functionality

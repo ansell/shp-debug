@@ -2,6 +2,16 @@ package com.github.ansell.shp;
 
 import java.util.Locale;
 
+/**
+ * Copied from Stack Overflow, licensed under
+ * <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a> per
+ * the Stack Overflow content policy.
+ * 
+ * @author user2548538
+ * @see <a href="https://stackoverflow.com/users/2548538/user2548538">Stack
+ *      Overflow user</a>
+ * @see <a href="https://stackoverflow.com/a/28224544">Stack Overflow</a>
+ */
 public class UTM {
     private double easting;
     private double northing;

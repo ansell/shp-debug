@@ -24,6 +24,9 @@ sudo -u postgres psql -c "ALTER USER ${PGUSER} WITH SUPERUSER"
 sudo -u postgres createdb -O ${PGUSER} ${PGDB_TEMPLATE}
 
 psql "${POSTGRES_PSQL_TEMPLATE_CONNECTION}" -c "CREATE EXTENSION postgis;"
+psql "${POSTGRES_PSQL_TEMPLATE_CONNECTION}" -c "CREATE EXTENSION postgis_topology;"
+psql "${POSTGRES_PSQL_TEMPLATE_CONNECTION}" -c "CREATE EXTENSION ogr_fdw;"
+psql "${POSTGRES_PSQL_TEMPLATE_CONNECTION}" -c "CREATE EXTENSION www_fdw;"
 
 cd /tmp 
 wget https://raw.githubusercontent.com/pedrogit/postgisaddons/master/postgis_addons.sql

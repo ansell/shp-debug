@@ -57,6 +57,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.github.ansell.csv.stream.CSVStream;
 import com.github.ansell.csv.sum.CSVSummariser;
 import com.github.ansell.csv.util.CSVUtil;
 
@@ -161,7 +162,7 @@ public class SHPDump {
 				System.out.println("Attribute: " + attribute.getName().toString());
 				attributeList.add(attribute.getName().toString());
 			}
-			CsvSchema csvSchema = CSVUtil.buildSchema(attributeList);
+			CsvSchema csvSchema = CSVStream.buildSchema(attributeList);
 
 			SimpleFeatureCollection collection = featureSource.getFeatures();
 			int featureCount = 0;
@@ -172,7 +173,7 @@ public class SHPDump {
 			try (SimpleFeatureIterator iterator = collection.features();
 					Writer bufferedWriter = Files.newBufferedWriter(nextCSVFile, StandardCharsets.UTF_8,
 							StandardOpenOption.CREATE_NEW);
-					SequenceWriter csv = CSVUtil.newCSVWriter(bufferedWriter, csvSchema);) {
+					SequenceWriter csv = CSVStream.newCSVWriter(bufferedWriter, csvSchema);) {
 				List<String> nextLine = new ArrayList<>();
 				while (iterator.hasNext()) {
 					SimpleFeature feature = iterator.next();

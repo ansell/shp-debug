@@ -32,7 +32,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<geotools.version>15.0</geotools.version>
+		<geotools.version>15.1</geotools.version>
 		<junit.version>4.12</junit.version>
 		<slf4j.version>1.7.21</slf4j.version>
 	</properties>
@@ -100,7 +100,12 @@
 			<dependency>
 				<groupId>com.github.ansell.csv.sum</groupId>
 				<artifactId>csvsum</artifactId>
-				<version>0.3.1</version>
+				<version>0.3.2-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.ansell.csv</groupId>
+				<artifactId>csvstream</artifactId>
+				<version>0.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.jopt-simple</groupId>

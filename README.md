@@ -3,6 +3,10 @@ Debugging SHP files
 
 # Changelog
 
+## 2016-09-09
+* Release 0.0.5
+* Add csvstream dependency
+
 ## 2016-07-25
 * Release 0.0.4
 * Add script to setup a test instance of postgis

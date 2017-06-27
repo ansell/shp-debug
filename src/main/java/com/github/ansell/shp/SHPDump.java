@@ -212,8 +212,8 @@ public class SHPDump {
 							StandardOpenOption.CREATE_NEW);
 					final Writer mappingWriter = options.has(outputMappingTemplate)
 							? Files.newBufferedWriter(outputMappingPath) : NullWriter.NULL_WRITER) {
-				CSVSummariser.runSummarise(csvReader, summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT,
-						false);
+				CSVSummariser.runSummarise(csvReader, CSVStream.defaultMapper(), CSVStream.defaultSchema(),
+						summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT, false, false, null, 1);
 			}
 			if (featureCount > 100) {
 				System.out.println("");

@@ -1,6 +1,8 @@
 # shp-debug
 Debugging SHP files
 
+[![Build Status](https://travis-ci.org/ansell/shp-debug.svg?branch=master)](https://travis-ci.org/ansell/shp-debug) [![Coverage Status](https://coveralls.io/repos/ansell/shp-debug/badge.svg?branch=master)](https://coveralls.io/r/ansell/shp-debug?branch=master)
+
 # Changelog
 
 ## 2016-09-09

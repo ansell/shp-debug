@@ -3,6 +3,9 @@ dist: trusty
 jdk:
   - oraclejdk8
   - oraclejdk9
+matrix:
+  allow_failures:
+  - jdk: oraclejdk9
 notifications:
   email:
     - ansell.peter@gmail.com

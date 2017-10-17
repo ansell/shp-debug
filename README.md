@@ -5,6 +5,9 @@ Debugging SHP files
 
 # Changelog
 
+## 2017-10-18
+* Release 0.0.7
+
 ## 2016-09-09
 * Release 0.0.5
 * Add csvstream dependency

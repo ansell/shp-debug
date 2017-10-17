@@ -11,7 +11,7 @@
 
 	<groupId>com.github.ansell.shp</groupId>
 	<artifactId>shp-debug</artifactId>
-	<version>0.0.7</version>
+	<version>0.0.8-SNAPSHOT</version>
 	<name>SHP debug</name>
 	<description>Debugger for SHP files</description>
 	<packaging>jar</packaging>

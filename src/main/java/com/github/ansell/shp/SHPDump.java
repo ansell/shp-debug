@@ -164,12 +164,21 @@ public class SHPDump {
 				System.out.println("Attribute: " + attribute.getName().toString());
 				attributeList.add(attribute.getName().toString());
 			}
-			
-			List<String> longFieldsList = attributeList.stream().filter(nextAtt -> nextAtt.length() > 10).collect(Collectors.toList());
-			if(!longFieldsList.isEmpty()) {
-				throw new RuntimeException("Shapefile contained field names longer than 10 characters, and is hence invalid: " + longFieldsList.toString());
+
+			List<String> longFieldsList = attributeList.stream().filter(nextAtt -> nextAtt.length() > 10)
+					.collect(Collectors.toList());
+			if (!longFieldsList.isEmpty()) {
+				throw new RuntimeException(
+						"Shapefile contained field names longer than 10 characters, and is hence invalid: "
+								+ longFieldsList.toString());
 			}
-			
+
+			if (attributeList.size() > 255) {
+				throw new RuntimeException(
+						"Shapefile contained more than 255 fields and hence is invalid and possibly corrupted: "
+								+ attributeList.size());
+			}
+
 			CsvSchema csvSchema = CSVStream.buildSchema(attributeList);
 
 			SimpleFeatureCollection collection = featureSource.getFeatures();

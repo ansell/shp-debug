@@ -119,7 +119,8 @@ public class SHPDump {
 		}
 
 		final Path outputMappingPath = options.has(outputMappingTemplate)
-				? outputMappingTemplate.value(options).toPath() : null;
+				? outputMappingTemplate.value(options).toPath()
+				: null;
 		if (options.has(outputMappingTemplate) && Files.exists(outputMappingPath)) {
 			throw new FileNotFoundException(
 					"Output mapping template file already exists: " + outputMappingPath.toString());
@@ -211,9 +212,10 @@ public class SHPDump {
 					Writer summaryOutput = Files.newBufferedWriter(nextSummaryCSVFile, StandardCharsets.UTF_8,
 							StandardOpenOption.CREATE_NEW);
 					final Writer mappingWriter = options.has(outputMappingTemplate)
-							? Files.newBufferedWriter(outputMappingPath) : NullWriter.NULL_WRITER) {
-				CSVSummariser.runSummarise(csvReader, CSVStream.defaultMapper(), CSVStream.defaultSchema(),
-						summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT, false, false, null, 1);
+							? Files.newBufferedWriter(outputMappingPath)
+							: NullWriter.NULL_WRITER) {
+				CSVSummariser.runSummarise(csvReader, summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT,
+						false, false, null, 1);
 			}
 			if (featureCount > 100) {
 				System.out.println("");

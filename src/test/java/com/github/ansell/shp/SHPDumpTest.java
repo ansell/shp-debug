@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.file.Path;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
@@ -56,7 +56,7 @@ class SHPDumpTest {
 	 * Test method for
 	 * {@link com.github.ansell.shp.SHPDump#main(java.lang.String[])}.
 	 */
-	@Ignore("Temporary test to diagnose an issue with an invalid shapefile")
+	@Disabled("Temporary test to diagnose an issue with an invalid shapefile")
 	@Test
 	final void testMainExternalFile() throws Exception {
 		SHPDump.main("--input",

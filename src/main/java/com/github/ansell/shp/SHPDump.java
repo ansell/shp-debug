@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -163,6 +164,12 @@ public class SHPDump {
 				System.out.println("Attribute: " + attribute.getName().toString());
 				attributeList.add(attribute.getName().toString());
 			}
+			
+			List<String> longFieldsList = attributeList.stream().filter(nextAtt -> nextAtt.length() > 10).collect(Collectors.toList());
+			if(!longFieldsList.isEmpty()) {
+				throw new RuntimeException("Shapefile contained field names longer than 10 characters, and is hence invalid: " + longFieldsList.toString());
+			}
+			
 			CsvSchema csvSchema = CSVStream.buildSchema(attributeList);
 
 			SimpleFeatureCollection collection = featureSource.getFeatures();
@@ -212,7 +219,7 @@ public class SHPDump {
 					Writer summaryOutput = Files.newBufferedWriter(nextSummaryCSVFile, StandardCharsets.UTF_8,
 							StandardOpenOption.CREATE_NEW);
 					final Writer mappingWriter = options.has(outputMappingTemplate)
-							? Files.newBufferedWriter(outputMappingPath)
+							? Files.newBufferedWriter(outputMappingPath, StandardCharsets.UTF_8)
 							: NullWriter.NULL_WRITER) {
 				CSVSummariser.runSummarise(csvReader, summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT,
 						false, false, null, 1);

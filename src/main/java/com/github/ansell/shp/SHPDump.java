@@ -93,6 +93,12 @@ public class SHPDump {
 		final OptionSpec<String> removeIfEmpty = parser.accepts("remove-if-empty").withRequiredArg()
 				.ofType(String.class).describedAs(
 						"The name of an attribute to remove if its value is empty before outputting the resulting shapefile. Use multiple times to specify multiple fields to check");
+		final OptionSpec<Integer> samplesToShow = parser.accepts("samples").withRequiredArg().ofType(Integer.class)
+				.defaultsTo(CSVSummariser.DEFAULT_SAMPLE_COUNT).describedAs(
+						"The maximum number of sample values for each field to include in the output, or -1 to dump all sample values for each field.");
+		final OptionSpec<Boolean> showSampleCounts = parser.accepts("show-sample-counts").withRequiredArg()
+				.ofType(Boolean.class).defaultsTo(Boolean.FALSE)
+				.describedAs("Set to true to add counts for each of the samples shown after the sample display value.");
 
 		OptionSet options = null;
 
@@ -140,6 +146,8 @@ public class SHPDump {
 		}
 
 		final String prefix = outputPrefix.value(options);
+		final boolean showSampleCountsBoolean = showSampleCounts.value(options);
+		final int samplesToShowInt = samplesToShow.value(options);
 
 		FileDataStore store = FileDataStoreFinder.getDataStore(inputPath.toFile());
 
@@ -230,8 +238,8 @@ public class SHPDump {
 					final Writer mappingWriter = options.has(outputMappingTemplate)
 							? Files.newBufferedWriter(outputMappingPath, StandardCharsets.UTF_8)
 							: NullWriter.NULL_WRITER) {
-				CSVSummariser.runSummarise(csvReader, summaryOutput, mappingWriter, CSVSummariser.DEFAULT_SAMPLE_COUNT,
-						false, false, null, 1);
+				CSVSummariser.runSummarise(csvReader, summaryOutput, mappingWriter, samplesToShowInt,
+						showSampleCountsBoolean, false, null, 1);
 			}
 			if (featureCount > 100) {
 				System.out.println("");

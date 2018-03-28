@@ -48,6 +48,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
+			<artifactId>gt-csv</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
 			<artifactId>gt-data</artifactId>
 		</dependency>
 		<dependency>
@@ -110,6 +114,11 @@
 			<dependency>
 				<groupId>org.geotools</groupId>
 				<artifactId>gt-shapefile</artifactId>
+				<version>${geotools.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.geotools</groupId>
+				<artifactId>gt-csv</artifactId>
 				<version>${geotools.version}</version>
 			</dependency>
 			<dependency>
@@ -192,6 +201,15 @@
 						<program>
 							<mainClass>com.github.ansell.shp.SHPDump</mainClass>
 							<id>shpdump</id>
+							<jvmSettings>
+								<initialMemorySize>32m</initialMemorySize>
+								<maxMemorySize>4g</maxMemorySize>
+								<maxStackSize>256m</maxStackSize>
+							</jvmSettings>
+						</program>
+						<program>
+							<mainClass>com.github.ansell.shp.CSV2SHP</mainClass>
+							<id>csv2shp</id>
 							<jvmSettings>
 								<initialMemorySize>32m</initialMemorySize>
 								<maxMemorySize>4g</maxMemorySize>

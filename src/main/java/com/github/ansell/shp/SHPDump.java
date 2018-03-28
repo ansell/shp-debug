@@ -99,6 +99,9 @@ public class SHPDump {
 		final OptionSpec<Boolean> showSampleCounts = parser.accepts("show-sample-counts").withRequiredArg()
 				.ofType(Boolean.class).defaultsTo(Boolean.FALSE)
 				.describedAs("Set to true to add counts for each of the samples shown after the sample display value.");
+		final OptionSpec<Boolean> overrideShapefileChecks = parser.accepts("override-shapefile-checks")
+				.withRequiredArg().ofType(Boolean.class).defaultsTo(Boolean.FALSE)
+				.describedAs("Set to true to make the shapefile field name length and field count checks non-fatal.");
 
 		OptionSet options = null;
 
@@ -147,6 +150,7 @@ public class SHPDump {
 
 		final String prefix = outputPrefix.value(options);
 		final boolean showSampleCountsBoolean = showSampleCounts.value(options);
+		final boolean overrideShapefileChecksBoolean = overrideShapefileChecks.value(options);
 		final int samplesToShowInt = samplesToShow.value(options);
 
 		FileDataStore store = FileDataStoreFinder.getDataStore(inputPath.toFile());
@@ -176,15 +180,23 @@ public class SHPDump {
 			List<String> longFieldsList = attributeList.stream().filter(nextAtt -> nextAtt.length() > 10)
 					.collect(Collectors.toList());
 			if (!longFieldsList.isEmpty()) {
-				throw new RuntimeException(
-						"Shapefile contained field names longer than 10 characters, and is hence invalid: "
-								+ longFieldsList.toString());
+				String message = "Shapefile contained field names longer than 10 characters, and is hence invalid: "
+						+ longFieldsList.toString();
+				if (overrideShapefileChecksBoolean) {
+					System.err.println(message);
+				} else {
+					throw new RuntimeException(message);
+				}
 			}
 
 			if (attributeList.size() > 255) {
-				throw new RuntimeException(
-						"Shapefile contained more than 255 fields and hence is invalid and possibly corrupted: "
-								+ attributeList.size());
+				String message = "Shapefile contained more than 255 fields and hence is invalid and possibly corrupted: "
+						+ attributeList.size();
+				if (overrideShapefileChecksBoolean) {
+					System.err.println(message);
+				} else {
+					throw new RuntimeException(message);
+				}
 			}
 
 			CsvSchema csvSchema = CSVStream.buildSchema(attributeList);

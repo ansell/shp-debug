@@ -6,7 +6,7 @@
         <parent>
                 <groupId>com.github.ansell</groupId>
                 <artifactId>parentpom</artifactId>
-                <version>7</version>
+                <version>11</version>
         </parent>
 
 	<groupId>com.github.ansell.shp</groupId>
@@ -36,9 +36,9 @@
 	</developers>
 
 	<properties>
-		<geotools.version>19.0</geotools.version>
+		<geotools.version>21-RC</geotools.version>
 		<slf4j.version>1.7.25</slf4j.version>
-                <junit.version>4.12</junit.version>
+        <junit.version>4.12</junit.version>
 	</properties>
 
 	<dependencies>
@@ -51,12 +51,12 @@
 			<artifactId>gt-shapefile</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.geotools</groupId>
-			<artifactId>gt-csv</artifactId>
+			<groupId>com.github.ansell.shp</groupId>
+			<artifactId>shp-csv</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
-			<artifactId>gt-data</artifactId>
+			<artifactId>gt-main</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
@@ -132,13 +132,13 @@
 				<version>${geotools.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.geotools</groupId>
-				<artifactId>gt-csv</artifactId>
-				<version>${geotools.version}</version>
+				<groupId>com.github.ansell.shp</groupId>
+				<artifactId>shp-csv</artifactId>
+				<version>21-RC-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.geotools</groupId>
-				<artifactId>gt-data</artifactId>
+				<artifactId>gt-main</artifactId>
 				<version>${geotools.version}</version>
 			</dependency>
 			<dependency>

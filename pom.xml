@@ -66,6 +66,14 @@
 					<groupId>javax.media</groupId>
 					<artifactId>jai_imageio</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>javax.media</groupId>
+					<artifactId>jai_codec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>it.geosolutions.imageio-ext</groupId>
+					<artifactId>imageio-ext-tiff</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -134,7 +142,7 @@
 			<dependency>
 				<groupId>com.github.ansell.shp</groupId>
 				<artifactId>shp-csv</artifactId>
-				<version>21-RC-SNAPSHOT</version>
+				<version>21-RC</version>
 			</dependency>
 			<dependency>
 				<groupId>org.geotools</groupId>

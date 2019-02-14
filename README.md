@@ -5,6 +5,10 @@ Debugging SHP files
 
 # Changelog
 
+## 2019-02-14
+* Release 0.0.8
+* Add shp-csv dependency to remove artificial limit that gt-csv has through its csv parsing library
+
 ## 2017-10-18
 * Release 0.0.7
 
